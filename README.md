@@ -74,7 +74,7 @@ GOOGLE_APPLICATION_CREDENTIALS_CLIENT_ID = "Enter your client_id from the json f
 
 1. GET ```/users```:  Fetch all OCR records.
 2. POST ```/users```: Creates a new OCR record, shows an alert if the identification number is already present in the database, and shows individual error messages for each field, if any.
-3. GET ```/users/:id```: Retrieve OCR record by identification number, name, and last name, similar show alert message if any.
+3. GET ```/users/:id```: Retrieve OCR record by ID, identification number(do not forget to put spaces in between), name, and last name, similar show alert message if any.
 4. PATCH ```/users/:id```: Partially update OCR record by ID. 
 5. DELETE ```/users/:id```: Delete OCR record by ID, "deleted" property of the record which by default is "false" is toggled "true".
 
