@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thai ID OCR App - Response</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div class="container py-5">
+        <h1 class="text-center mb-4">Thai ID OCR App - Response</h1>
+        <div class="card">
+            <div class="card-header">
+                OCR Result
+            </div>
+            <div class="card-body">
+                <pre class="card-text"><%= JSON.stringify({
+                        identification_number: ocrResult.identification_number,
+                        name: ocrResult.name,
+                        last_name: ocrResult.last_name,
+                        date_of_birth: ocrResult.date_of_birth,
+                        date_of_issue: ocrResult.date_of_issue,
+                        date_of_expiry: ocrResult.date_of_expiry
+                    }, null, 2) %></pre>
+                    <div class="mt-4">
+                        <a href="/" class="btn btn-primary">Home</a>
+                        <a href="/view" class="btn btn-secondary ml-2">View</a>
+                    </div>
+            </div>
+        </div>
+        <div class="card mt-4">
+            <div class="card-header">
+                Status and Error Messages
+            </div>
+            <div class="card-body">
+                <p class="card-text">Status: <%= ocrResult.status %></p>
+                <% ocrResult.errorMessage.forEach(function(message) { %>
+                    <p class="card-text">Error: <%= message %></p>
+                <% }); %>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+</body>
+</html>

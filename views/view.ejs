@@ -1,0 +1,218 @@
+<!-- views/view.ejs -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View OCR Records</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+    <div class="container py-5">
+        <h1 class="text-center mb-4">View OCR Records</h1>
+        <div class="mb-3 text-center">
+            <a href="/" class="btn btn-primary">Go to Home</a>
+        </div>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col">Identification Number</th>
+                    <th scope="col">Name</th>
+                    <th scope="col">Last Name</th>
+                    <th scope="col">Date of Birth</th>
+                    <th scope="col">Date of Issue</th>
+                    <th scope="col">Date of Expiry</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% ocrRecords.forEach(record => { %>
+                    <% if (!record.deleted) { %>
+                    <tr>
+                        <td><%= record.identification_number %></td>
+                        <td><%= record.name %></td>
+                        <td><%= record.last_name %></td>
+                        <td><%= record.date_of_birth %></td>
+                        <td><%= record.date_of_issue %></td>
+                        <td><%= record.date_of_expiry %></td>
+                        <td><%= record.status %></td>
+                        <td>
+                            <a href="#" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#updateModal" onclick="populateForm('<%= record._id %>')">Update</a>
+                            <a href="#" class="btn btn-danger btn-sm" onclick="deleteRecord('<%= record._id %>')">Delete</a>
+                        </td>
+                    </tr>
+                    <% } %>
+                <% }); %>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Modal Form to Update the Records to the Database-->
+    <div class="modal fade" id="updateModal" tabindex="-1" aria-labelledby="updateModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+            <h5 class="modal-title" id="updateModalLabel">Update Record</h5>
+            <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            </div>
+            <div class="modal-body">
+                <form id="updateForm">
+                <div class="mb-3">
+                    <label for="identification_number" class="form-label">Identification Number</label>
+                    <input type="text" class="form-control" id="identification_number">
+                </div>
+                <div class="mb-3">
+                    <label for="name" class="form-label">Name</label>
+                    <input type="text" class="form-control" id="name">
+                </div>
+                <div class="mb-3">
+                    <label for="last_name" class="form-label">Last Name</label>
+                    <input type="text" class="form-control" id="last_name">
+                </div>
+                <div class="mb-3">
+                    <label for="date_of_birth" class="form-label">Date of Birth</label>
+                    <input type="date" class="form-control" id="date_of_birth">
+                </div>
+                <div class="mb-3">
+                    <label for="date_of_issue" class="form-label">Date of Issue</label>
+                    <input type="date" class="form-control" id="date_of_issue">
+                </div>
+                <div class="mb-3">
+                    <label for="date_of_expiry" class="form-label">Date of Expiry</label>
+                    <input type="date" class="form-control" id="date_of_expiry">
+                </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary" id="saveChanges">Save changes</button>
+            </div>
+        </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+    <script>
+        function deleteRecord(id) {
+        axios.delete('http://localhost:3000/users/' + id)
+        .then(response => {
+            const data = response.data;
+            if (data.success) {
+                alert('Record deleted successfully');
+                location.reload();
+            } else {
+                alert('Failed to delete record: ' + data.message);
+            }
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+        });
+    }
+    </script>
+
+
+
+    <script>
+        let currentRecordId;
+
+
+
+
+        function populateForm(id) {
+            currentRecordId = id;
+            axios.get(`/users/${id}`)
+                .then(response => {
+                    console.log(response.data);
+                    const data = response.data.data;
+                    document.querySelector('#identification_number').value = data.identification_number;
+                    document.querySelector('#name').value = data.name;
+                    document.querySelector('#last_name').value = data.last_name;
+                    document.querySelector('#date_of_birth').value = formatDate(data.date_of_birth);
+                    document.querySelector('#date_of_issue').value = formatDate(data.date_of_issue);
+                    document.querySelector('#date_of_expiry').value = formatDate(data.date_of_expiry);
+                })
+            .catch(error => {
+                console.log(error);
+            });
+        }
+                
+        function formatDate(dateString) {
+            const parts = dateString.split('/');
+            const date = new Date(`${parts[1]}/${parts[0]}/${parts[2]}`);
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-based, so we need to add 1
+            const day = String(date.getDate()).padStart(2, '0');
+
+            return `${year}-${month}-${day}`;
+        }
+
+        window.onload = function() {
+        // Existing code...
+
+        document.querySelector('#identification_number').addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, ''); // Remove non-digits
+
+            // Prevent more than 13 digits from being entered
+            if (value.length > 13) {
+            value = value.slice(0, 13);
+            }
+
+            // Add spaces after the specified number of digits
+            value = value.replace(/^(.{1})?(.{4})?(.{5})?(.{2})?(.{1})?/, function(_, p1, p2, p3, p4, p5) {
+            let result = '';
+            if (p1) result += p1 + ' ';
+            if (p2) result += p2 + ' ';
+            if (p3) result += p3 + ' ';
+            if (p4) result += p4 + ' ';
+            if (p5) result += p5;
+            return result.trim();
+            });
+
+            e.target.value = value;
+        });
+        }
+
+
+
+        document.querySelector('#saveChanges').addEventListener('click', function() {
+        const updatedData = {
+            identification_number: document.querySelector('#identification_number').value,
+            name: document.querySelector('#name').value,
+            last_name: document.querySelector('#last_name').value,
+            date_of_birth: document.querySelector('#date_of_birth').value,
+            date_of_issue: document.querySelector('#date_of_issue').value,
+            date_of_expiry: document.querySelector('#date_of_expiry').value
+        };
+        console.log(updatedData, currentRecordId);
+        axios.patch(`/users/${currentRecordId}`, updatedData)
+            .then(response => {
+            // handle success
+            console.log(response);
+            //   $('#updateModal').modal('hide');
+            var modal = document.getElementById('updateModal');
+                modal.style.display = 'none';
+                alert('Record updated successfully');
+            location.reload();
+            })
+            .catch(error => {
+            // handle error
+            console.log(error);
+            });
+        });
+    </script>
+</body>
+</html>
+
+
+
+
