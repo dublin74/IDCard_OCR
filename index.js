@@ -12,6 +12,9 @@ const ocrController = require('./controllers/orcControllers.js'); // controller
 const vision = require('@google-cloud/vision');
 // const client = new vision.ImageAnnotatorClient();
 
+
+// this encoding and decoding for the base64 string of the private key was because during the hosting on render.com, the private key was not able to be read by the server. So, I had to encode it and decode it back to the original string for usage. Also, for local development it is just better to just store the json key file in the root directory of the project and set the environment variable GOOGLE_APPLICATION_CREDENTIALS to the path of the json key file.
+
 let base64String = process.env.GOOGLE_APPLICATION_CREDENTIALS_PRIVATE_KEY;
 let decodedString = Buffer.from(base64String, 'base64').toString('utf8');
 const config = {
@@ -22,6 +25,7 @@ const config = {
     },
 }
 
+// Mongodb connection over here
 mongoose.connect(process.env.MONGODB_URL, { useNewUrlParser: true, useUnifiedTopology: true });
 const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'MongoDB connection error:'));
@@ -40,7 +44,7 @@ app.use('/users', ocrRoutes);
 const upload = multer({
     storage: multer.memoryStorage(),
     fileFilter: (req, file, cb) => {
-        cb(null, true); // Allow all files to pass the filter
+        cb(null, true); // Allows all files to pass the filter check, for extensions check it is done later
     },
     limits: {
         fileSize: 2 * 1024 * 1024 // Set the file size limit to 2MB
@@ -89,7 +93,7 @@ app.post('/upload', upload.single('filename'), async (req, res) => {
 
         const detections = result.fullTextAnnotation.text;
 
-        const data = parseOCRResult(detections);
+        const data = parseOCRResult(detections); // Parse the OCR result using regex in the parseOCRResult function
 
         // Save OCR data to the database
         // const ocrRecord = new OCRRecord(data);
@@ -107,9 +111,6 @@ app.post('/upload', upload.single('filename'), async (req, res) => {
                     res.render('home', { alert: error.response.data.message });
                 }
             }
-            
-    
-            // await axios.post('http://localhost:3000/users', data); // routing
     
             res.render('response', { ocrResult: data });
         }
@@ -117,7 +118,7 @@ app.post('/upload', upload.single('filename'), async (req, res) => {
     } catch (error) {
         console.error(error);
         res.render('home', { alert: error.response.data.message });
-        // res.redirect('/'); // Redirect to the home page
+        // res.redirect('/'); // Causing errors
     }
 },(error, req, res, next) => {
     // This function will be called if an error occurred during the file upload process
@@ -141,6 +142,8 @@ const parseOCRResult = (rawText) => {
     console.log('Text:');
     console.log(rawText);
     
+
+    //criteria for the id card to be a thai national id card
     if (!rawText.includes('Thai National ID Card')) {
         return {
             status: 'not_id_card',
@@ -159,6 +162,8 @@ const parseOCRResult = (rawText) => {
         status: 'success'
     };
 
+
+    // Regex for the identification number, clicked by seeing the uniformity of the id number, 13 unique digits spaced by a pattern of 1,4,5,2,1 digits
     const idNumberRegex = /(\d \d{4} \d{5} \d{2} \d)/;
     const idNumberMatch = rawText.match(idNumberRegex);
 
@@ -171,7 +176,7 @@ const parseOCRResult = (rawText) => {
     }
 
     const lines = rawText.split('\n');
-    let potentialDate = '';
+    let potentialDate = ''; //kind of a hacky way to get the date of issue and date of expiry, but it works
 
     for (const line of lines) {
         if (line.startsWith('Name')) {
@@ -200,6 +205,7 @@ const parseOCRResult = (rawText) => {
         potentialDate = line.trim();
     }
 
+    //Error handling for the fields
     if (!data.name) {
         console.log('Name not found');
         data.errorMessage.push('Name not found. Please upload a clearer image.');
@@ -230,6 +236,8 @@ const parseOCRResult = (rawText) => {
         data.status = 'error';
     }
 
+
+    //If all the filed are empty, but still the image contains Thai National ID Card, then it is a case of a blurry image, so we return an error message
     if (data.status === 'error' && data.errorMessage.length === 6 && data.errorMessage[0] === 'Identification number not found') {
         console.log('No fields detected');
         data = {

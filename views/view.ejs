@@ -103,6 +103,7 @@
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
     <script>
+        // Delete Record, calls the delete api and sets the deleted flag to true
         function deleteRecord(id) {
         axios.delete('https://thaiidcardocr.onrender.com/users/' + id)
         .then(response => {
@@ -123,7 +124,7 @@
 
 
     <script>
-        let currentRecordId;
+        let currentRecordId; // Stores the current record id to be updated
 
 
 
@@ -145,7 +146,9 @@
                 console.log(error);
             });
         }
-                
+        
+        //in input tag of date type, the date format is yyyy-mm-dd, and in our database the date format is dd/mm/yyyy, so we need to convert the date format
+
         function formatDate(dateString) {
             const parts = dateString.split('/');
             const date = new Date(`${parts[1]}/${parts[0]}/${parts[2]}`);
@@ -157,7 +160,6 @@
         }
 
         window.onload = function() {
-        // Existing code...
 
         document.querySelector('#identification_number').addEventListener('input', function(e) {
             let value = e.target.value.replace(/\D/g, ''); // Remove non-digits
@@ -167,7 +169,8 @@
             value = value.slice(0, 13);
             }
 
-            // Add spaces after the specified number of digits
+            // Added spaces after the specified number of digits, didn't like pressing spaces manually
+
             value = value.replace(/^(.{1})?(.{4})?(.{5})?(.{2})?(.{1})?/, function(_, p1, p2, p3, p4, p5) {
             let result = '';
             if (p1) result += p1 + ' ';
@@ -183,7 +186,7 @@
         }
 
 
-
+        // Update Record, calls the update api and updates the record
         document.querySelector('#saveChanges').addEventListener('click', function() {
         const updatedData = {
             identification_number: document.querySelector('#identification_number').value,

@@ -63,18 +63,6 @@ const ocrController = {
   getRecordById: async (req, res) => {
     try {
       const { id } = req.params;
-    //   const ocrRecord = await OCRRecord.findById({ id });
-    // const ocrRecord = await OCRRecord.find({
-    //     $or: [
-    //         { '_id': { $regex: id, $options: 'i' } },
-    //         { 'identification_number': { $regex: id, $options: 'i' } },
-    //         { 'name': { $regex: id, $options: 'i' } },
-    //         { 'last_name': { $regex: id, $options: 'i' } },
-    //         { 'date_of_birth': { $regex: id, $options: 'i' } },
-    //         { 'date_of_issue': { $regex: id, $options: 'i' } },
-    //         { 'date_of_expiry': { $regex: id, $options: 'i' } },
-    //     ]
-    // });
     let ocrRecord;
         if (mongoose.Types.ObjectId.isValid(id)) {
             ocrRecord = await OCRRecord.findById(id);
@@ -111,41 +99,6 @@ const ocrController = {
       });
     }
   },
-
-//   partialUpdateRecord: async (req, res) => {
-//     try {
-//       const { id } = req.params;
-//       const updatedOCRRecord = await OCRRecord.findByIdAndUpdate(
-//         id,
-//         { $set: req.body },
-//         { new: true }
-//       );
-//       if (!updatedOCRRecord) {
-//         return res.status(404).json({
-//           data: null,
-//           success: false,
-//           message: 'OCR record not found for partial update',
-//           error: null,
-//         });
-//       }
-//       return res.status(200).json({
-//         data: updatedOCRRecord,
-//         success: true,
-//         message: 'Successfully partially updated OCR record',
-//         error: null,
-//       });
-//     } catch (error) {
-//       console.error(error);
-//       return res.status(500).json({
-//         data: null,
-//         success: false,
-//         message: 'Internal Server Error',
-//         error: error.message,
-//       });
-//     }
-//   },
-
-
     partialUpdateRecord: async (req, res) => {
         try {
             const { id } = req.params;
@@ -154,7 +107,7 @@ const ocrController = {
             const formatDate = (dateString) => {
                 const date = new Date(dateString);
                 const day = String(date.getDate()).padStart(2, '0');
-                const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-based, so we need to add 1
+                const month = String(date.getMonth() + 1).padStart(2, '0'); //January is 0!
                 const year = date.getFullYear();
 
                 return `${day}/${month}/${year}`;
