@@ -104,7 +104,7 @@
 
     <script>
         function deleteRecord(id) {
-        axios.delete('http://localhost:3000/users/' + id)
+        axios.delete('https://thaiidcardocr.onrender.com/users/' + id)
         .then(response => {
             const data = response.data;
             if (data.success) {

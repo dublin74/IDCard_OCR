@@ -27,7 +27,7 @@ const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'MongoDB connection error:'));
 
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3000;
 
 app.set('view engine', 'ejs');
 app.set('views', 'views');
@@ -100,7 +100,7 @@ app.post('/upload', upload.single('filename'), async (req, res) => {
         else{
             if (data.status === 'success' || data.status === 'error') {
                 try {
-                    await axios.post('http://localhost:3000/users', data); // routing
+                    await axios.post('https://thaiidcardocr.onrender.com/users', data); // routing
                     res.render('response', { ocrResult: data });
                 } catch (error) {
                     console.error(error);
